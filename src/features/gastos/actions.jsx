@@ -4,8 +4,6 @@ const url_back = import.meta.env.VITE_BACKEND_URL;
 const token = import.meta.env.VITE_TOKEN;
 const content_type = import.meta.env.VITE_CONTENT_TYPE;
 
-
-
 export function getBills() {
     return async function (dispatch) {
         let response = await axios.get(`${url_back}/bill`, {
