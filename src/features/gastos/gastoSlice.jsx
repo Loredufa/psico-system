@@ -3,14 +3,21 @@ import { createSlice } from "@reduxjs/toolkit";
 export const gastoSlice = createSlice({
   name: 'gastos',
   initialState: {
-    gasto_list: [], // Array vacío
+    gasto_list: [], 
     message: null, 
+    detail_gasto: [], 
   },
   reducers: {
     setGastoList: (state, action) => {
       state.gasto_list = action.payload;
     },
+    setDetalleGastoList: (state, action) => {
+      state.detail_gasto = action.payload;
+    },
     addGasto: (state, action) => {
+      state.message = action.payload.message;
+    },
+    addDetailGasto: (state, action) => {
       state.message = action.payload.message;
     },
     deleteGasto: (state, action) => {
@@ -25,5 +32,6 @@ export const gastoSlice = createSlice({
   }
 });
 
-export const { addGasto, deleteGasto, editGasto, setGastoList, clearMessage } = gastoSlice.actions;
+export const { addGasto, deleteGasto, editGasto, setGastoList, clearMessage, setDetalleGastoList, addDetailGasto } = gastoSlice.actions;
+
 export default gastoSlice.reducer;

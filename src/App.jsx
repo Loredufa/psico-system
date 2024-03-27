@@ -10,10 +10,10 @@ function App() {
       <div className='flex items-center justify-center h-full'>
         <BrowserRouter>
           <Routes>
-            <Route path='/' element={<GastoList />} />
+            <Route path='/bill' element={<GastoList />} />
             <Route path='/income' element={<IngresoList />} />
             <Route path='/income/create-incomes' element={<IngresoForm />} />
-            <Route path='/create-bills' element={<GastoForm />} />
+            <Route path='/bill/create-bills' element={<GastoForm />} />
             <Route path='/edit-bills/:id' element={<GastoForm />} />
             <Route path='/edit-incomes/:id' element={<IngresoForm />} />
           </Routes>

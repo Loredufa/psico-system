@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { deleteBills, getBills } from "../features/gastos/actions";
+import { deleteBills, getBills, getDetailBills } from "../features/gastos/actions";
 import { clearMessage } from "../features/gastos/gastoSlice";
 
 
@@ -12,6 +12,7 @@ function GastoList() {
 
   useEffect(() => {
     dispatch(getBills());
+    dispatch(getDetailBills());
   }, [dispatch]);
 
   const handlerDelete = (id) => {

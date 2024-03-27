@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { deleteIncome, getIncomes } from "../features/ingresos/actions";
+import { deleteIncome, getDetailIncomes, getIncomes } from "../features/ingresos/actions";
 import { clearMessage } from "../features/ingresos/ingresoSlice";
 
 
@@ -12,6 +12,7 @@ function IngresoList() {
 
   useEffect(() => {
     dispatch(getIncomes());
+    dispatch(getDetailIncomes());
   }, [dispatch]);
 
   const handlerDelete = (id) => {

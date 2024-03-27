@@ -1,26 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import Autosuggest from 'react-autosuggest';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
-import { createIncome, editIncome } from '../features/ingresos/actions';
+import { createDetailIncome, createIncome, editIncome } from '../features/ingresos/actions';
 
 function IngresoForm() {
     const [ingreso, setIngreso] = useState({
         fecha: null,
         descripcion: '',
         monto: '',
-        mensual: false, 
+        mensual: false,
         paciente: false,
         cobrado: false,
         cancelado: false,
         facturado: false
     });
 
+    const [suggestions, setSuggestions] = useState([]);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const ingresos = useSelector(state => state.ingresos.ingreso_list);
-
+    const detalle = useSelector(state => state.ingresos.detail_ingreso);
+    
     useEffect(() => {
         if (id && ingresos.length > 0) {
             const ingresoEncontrado = ingresos.find(g => g.id === id);
@@ -30,10 +35,10 @@ function IngresoForm() {
                     ...ingresoEncontrado,
                     fecha: formattedDate,
                     mensual: Boolean(ingresoEncontrado.mensual), // Convertir a booleano
-                    cancelado: Boolean(ingresoEncontrado.cancelado), 
-                    paciente: Boolean(ingresoEncontrado.paciente), 
-                    cobrado: Boolean(ingresoEncontrado.cobrado), 
-                    facturado: Boolean(ingresoEncontrado.facturado), 
+                    cancelado: Boolean(ingresoEncontrado.cancelado),
+                    paciente: Boolean(ingresoEncontrado.paciente),
+                    cobrado: Boolean(ingresoEncontrado.cobrado),
+                    facturado: Boolean(ingresoEncontrado.facturado),
                 });
             } else {
                 console.log("Ingreso no encontrado");
@@ -45,40 +50,98 @@ function IngresoForm() {
 
     const handleChange = (name, value) => {
         if (name === 'mensual' || name === 'cancelado' || name === 'paciente' || name === 'cobrado' || name === 'facturado') {
-          // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
-          setIngreso({
-            ...ingreso,
-            [name]: value.target.checked
-          });
-        } else {
-          // Si no es un checkbox, actualiza el valor normalmente
-          setIngreso({
-            ...ingreso,
-            [name]: value
-          });
-        } console.log('SOY EL GASTO', ingreso)
-      };
-    ;
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (id) {
-            dispatch(editIncome({
-                id,
-                ingreso: {
-                    ...ingreso,
-                    fecha: `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}` // Formatea la fecha como día/mes/año antes de enviarla al servidor
-                }
-            }));
-        } else {
-            dispatch(createIncome({
+            // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
+            setIngreso({
                 ...ingreso,
-                id: uuid(),
-                fecha: `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}` // Formatea la fecha como día/mes/año antes de enviarla al servidor
-            }));
-        }
-        navigate('/income');
+                [name]: value.target.checked
+            });
+        } else {
+            // Si no es un checkbox, actualiza el valor normalmente
+            setIngreso({
+                ...ingreso,
+                [name]: value
+            });
+        } console.log('SOY EL INGRESO', ingreso)
     };
 
+    const getSuggestions = value => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+
+        // Verifica si detalle tiene un valor antes de llamar a filter()
+        if (detalle && detalle.length > 0) {
+            return inputLength === 0 ? [] : detalle.filter(item =>
+                item.descripcion.toLowerCase().slice(0, inputLength) === inputValue
+            );
+        } else {
+            return [];
+        }
+    };
+    const onSuggestionsFetchRequested = ({ value }) => {
+        setSuggestions(getSuggestions(value));
+    };
+
+    const onSuggestionsClearRequested = () => {
+        setSuggestions([]);
+    };
+
+    const getSuggestionValue = suggestion => suggestion.descripcion;
+
+    const renderSuggestion = suggestion => (
+        <div className="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-600 hover:filter hover:brightness-90">
+            {suggestion.descripcion}
+        </div>
+    );
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const descripcion = ingreso.descripcion.trim().toLowerCase();
+        const existeDescripcion = detalle.some(item => item.descripcion.toLowerCase() === descripcion);
+        
+        if (!existeDescripcion) {
+            setShowConfirmDialog(true); // Mostrar el diálogo solo si la descripción no existe
+        } else {
+            // Si la descripción ya existe, determina si debes llamar a createIncome o editIncome
+            const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
+            const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
+            
+            if (id) {
+                dispatch(editIncome(income));
+            } else {
+                dispatch(createIncome(income));
+            }
+            
+            navigate('/income'); // Mueve la navegación aquí
+        }
+    };
+    // Manejar la confirmación
+    const handleConfirmAgendar = () => {
+        dispatch(createDetailIncome(ingreso.descripcion));
+        const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
+        const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
+        
+        if (id) {
+            dispatch(editIncome(income));
+        } else {
+            dispatch(createIncome(income));
+        }
+        
+        setShowConfirmDialog(false); // Cerrar el diálogo
+        navigate('/income'); // Mueve la navegación aquí
+    };
+
+    const handleCancelAgendar = () => {
+        const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
+        const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
+        
+        if (id) {
+            dispatch(editIncome(income));
+        } else {
+            dispatch(createIncome(income));
+        }       
+        setShowConfirmDialog(false); // Cerrar el diálogo
+        navigate('/income'); // Mueve la navegación aquí
+    };
 
     return (
         <form onSubmit={handleSubmit} className="bg-zinc-800 max-w-sm p-4 mb-1">
@@ -92,13 +155,19 @@ function IngresoForm() {
                 value={ingreso.fecha}
             />
             <label htmlFor="descripcion" className="block text-sm font-bold mb-2">Descripción:</label>
-            <input
-                name="descripcion"
-                type="text"
-                placeholder="Descripción"
-                value={ingreso.descripcion}
-                onChange={(e) => handleChange('descripcion', e.target.value)}
-                className="w-full p-2 rounded-md bg-zinc-600 mb-2"
+            <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={onSuggestionsClearRequested}
+                getSuggestionValue={getSuggestionValue}
+                renderSuggestion={renderSuggestion}
+                inputProps={{
+                    placeholder: 'Descripción',
+                    value: ingreso.descripcion,
+                    onChange: (e, { newValue }) => handleChange('descripcion', newValue),
+                    className: "w-full p-2 rounded-md bg-zinc-600 mb-2"
+
+                }}
             />
             <label htmlFor="monto" className="block text-sm font-bold mb-2">Importe en $</label>
             <input
@@ -106,7 +175,7 @@ function IngresoForm() {
                 type="number"
                 placeholder="Monto"
                 value={ingreso.monto}
-                onChange={(mensuale) => handleChange('monto', e.target.value)}
+                onChange={(e) => handleChange('monto', e.target.value)}
                 className="w-full p-2 rounded-md bg-zinc-600 mb-2"
             />
             <label htmlFor="paciente" className="block text-sm font-bold mb-2">Es paciente?:</label>
@@ -150,6 +219,15 @@ function IngresoForm() {
                 className="w-full p-2 rounded-md bg-zinc-600 mb-2"
             />
             <button type="submit" className="bg-indigo-600 py-1 px-2">Guardar</button>
+            {showConfirmDialog && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-4 rounded border border-gray-300">
+                        <p className="text-black">¿Deseas agregar este ingreso a tu lista de ingresos?</p>
+                        <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full mr-2" onClick={handleConfirmAgendar}>Sí</button>
+                        <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full" onClick={handleCancelAgendar}>No</button>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }
