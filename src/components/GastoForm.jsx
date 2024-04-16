@@ -13,7 +13,7 @@ function GastoForm() {
     monto: '',
     mensual: false,
     diferido: false,
-    fecha_dif: new Date(),
+    fecha_dif: '',
   });
   const [suggestions, setSuggestions] = useState([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
