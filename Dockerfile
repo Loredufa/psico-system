@@ -6,6 +6,7 @@ COPY package*.json .
 
 USER root
 
+RUN npm install -g create-vite 
 RUN npm install 
 
 COPY . .
