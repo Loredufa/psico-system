@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { addGasto, deleteGasto, editGasto, setDetalleGastoList, setGastoList } from './gastoSlice';
+import {
+    addDetailGasto, addGasto, deleteGasto, editGasto, setCurrentDiferido, setCurrentGasto,
+    setDetalleGastoList, setGastoList, setGastoxmes
+} from './gastoSlice';
 const url_back = import.meta.env.VITE_BACKEND_URL;
 const token = import.meta.env.VITE_TOKEN;
 const content_type = import.meta.env.VITE_CONTENT_TYPE;
@@ -31,7 +34,7 @@ export function getDetailBills() {
     };
 }
 
-export const editBill = ({ id, gasto }) => {
+export const editBill = (id, gasto ) => {
     return async (dispatch) => {
         try {
             // Realiza una solicitud HTTP para actualizar el usuario en el servidor
@@ -52,18 +55,23 @@ export const editBill = ({ id, gasto }) => {
 };
 
 export const createBill = (gasto) => {
+    console.log('SOY GASTO EN ACTION', gasto);
     return async (dispatch) => {
-        const newGasto = JSON.stringify(gasto)
+        // Elimina la propiedad circular si existe
+        if (gasto.inputElementProperty) {
+            delete gasto.inputElementProperty;
+        }
+
         try {
-            // Realiza una solicitud HTTP para crear un nuevo usuario en el servidor
-            const response = await axios.post(`${url_back}/bill`, newGasto, {
+            // Realiza una solicitud HTTP para crear un nuevo gasto en el servidor
+            const response = await axios.post(`${url_back}/bill`, gasto, {
                 headers: {
                     "x-access-token": `${token}`,
                     "Content-Type": `${content_type}`
                 },
             });
             console.log(response.data);
-            // Despacha una acción para agregar el nuevo usuario al estado de usuarios en el store
+            // Despacha una acción para agregar el nuevo gasto al estado de gastos en el store
             return dispatch(addGasto(response.data));
         } catch (error) {
             // Maneja errores y despacha una acción de error si es necesario
@@ -72,6 +80,7 @@ export const createBill = (gasto) => {
         }
     };
 };
+
 
 export const createDetailBill = (descripcion) => {
     return async (dispatch) => {
@@ -82,7 +91,7 @@ export const createDetailBill = (descripcion) => {
                     "Content-Type": content_type
                 },
             });
-            return dispatch(addDetailIngreso(response.data));
+            return dispatch(addDetailGasto(response.data));
         } catch (error) {
             console.log(error);
             return null;
@@ -110,3 +119,42 @@ export const deleteBills = (id) => {
         }
     };
 };
+
+export function getBillsxMonth() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/bill`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_gastoxmes = response.data;
+        return dispatch(setGastoxmes(total_gastoxmes));
+    };
+}
+
+export function getCurrentBill() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/currentbill`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_gastomensual = response.data;
+        return dispatch(setCurrentGasto(total_gastomensual));
+    };
+}
+
+export function getCurrentDiferido() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/diferido`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_diferido = response.data;
+        return dispatch(setCurrentDiferido(total_diferido));
+    };
+}

@@ -1,43 +1,68 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
-import { createBill, createDetailBill } from '../features/gastos/actions';
+import { useNavigate, useParams } from 'react-router-dom';
+import { createDetailBill, editBill } from '../features/gastos/actions';
 
 
-function GastoForm() {
+function EditBillForm() {
   const [gasto, setGasto] = useState({
-    fecha: new Date(),
+    id: '',
+    fecha: '',
     descripcion: '',
     monto: '',
     mensual: false,
     diferido: false,
-    fecha_dif: new Date(),
+    fecha_dif: '',
   });
   const [suggestions, setSuggestions] = useState([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const gastos = useSelector(state => state.gastos.gasto_list);
   const detalle = useSelector(state => state.gastos.detail_gasto);
+
+  useEffect(() => {
+    if (gastos.length > 0) {
+      const gastoEncontrado = gastos.find(g => g.id === id);
+      if (gastoEncontrado) {
+        //const formattedDate = new Date(gastoEncontrado.fecha).toLocaleDateString('en-CA');
+        setGasto({
+          ...gastoEncontrado,
+          // fecha: formattedDate,
+          id: gastoEncontrado.id,
+          fecha: gastoEncontrado.fecha,
+          descripcion: gastoEncontrado.descripcion,
+          monto: gastoEncontrado.monto,
+          mensual: Boolean(gastoEncontrado.mensual),
+          diferido: Boolean(gastoEncontrado.diferido),
+        });
+      } else {
+        console.log("Gasto no encontrado");
+      }
+    } else {
+      console.log("ID no encontrado o gastos no cargados");
+    }
+  }, [id, gastos]);
 
   const handleChange = (name, value) => {
     if (name === 'mensual' || name === 'diferido') {
-        // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
-        setGasto({
-            ...gasto,
-            [name]: value.target.checked
-        });
+      // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
+      setGasto({
+        ...gasto,
+        [name]: value && value.target ? value.target.checked : false
+      });
     } else {
-        // Si no es un checkbox, actualiza el valor normalmente
-        setGasto({
-            ...gasto,
-            [name]: value
-        });
-    } console.log('SOY EL GASTO', gasto)
-};
-
+      // Si no es un checkbox, actualiza el valor normalmente
+      setGasto({
+        ...gasto,
+        [name]: value
+      });
+    }
+    console.log('SOY EL GASTO', gasto);
+  };
   const getSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
@@ -70,31 +95,26 @@ function GastoForm() {
     if (!existeDescripcion) {
       setShowConfirmDialog(true);
     } else {
-      const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
-      const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
-      dispatch(createBill(bill));
+      dispatch(editBill(id, gasto))
       navigate('/bill');
     }
   };
-    // Manejar la confirmación
-    const handleConfirmAgendar = () => {
-      dispatch(createDetailBill(gasto.descripcion));
-      const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
-      const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
-      dispatch(createBill(bill));     
-      setShowConfirmDialog(false); // Cerrar el diálogo
-      navigate('/bill'); // Mueve la navegación aquí
+  // Manejar la confirmación
+  const handleConfirmAgendar = () => {
+    dispatch(createDetailBill(gasto.descripcion));
+    //const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
+    //const bill = { ...gasto, id: uuid() };
+    dispatch(editBill(id, gasto));
+    setShowConfirmDialog(false); // Cerrar el diálogo
+    navigate('/bill'); // Mueve la navegación aquí
   };
 
   const handleCancelAgendar = () => {
-      const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
-      const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
-      dispatch(createBill(bill));      
-      setShowConfirmDialog(false); // Cerrar el diálogo
-      navigate('/bill'); // Mueve la navegación aquí
+    //const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
+    //const bill = { ...gasto, id: uuid() };
+    dispatch(editBill(id, gasto));
+    setShowConfirmDialog(false); // Cerrar el diálogo
+    navigate('/bill'); // Mueve la navegación aquí
   };
 
   return (
@@ -102,7 +122,8 @@ function GastoForm() {
       <h3 className="mb-2">Cargando mis gastos</h3>
       <label htmlFor="fecha" className="block text-sm font-bold mb-2">Fecha del gasto:</label>
       <input
-        type="date"
+        type="text"
+        id="fecha"
         name='fecha'
         className="w-full p-2 rounded-md bg-zinc-600 mb-2"
         onChange={(e) => handleChange('fecha', e.target.value)}
@@ -120,12 +141,12 @@ function GastoForm() {
           value: gasto.descripcion,
           onChange: (e, { newValue }) => handleChange('descripcion', newValue),
           className: "w-full p-2 rounded-md bg-zinc-600 mb-2"
-
         }}
       />
       <label htmlFor="monto" className="block text-sm font-bold mb-2">Importe en $</label>
       <input
         name="monto"
+        id="monto"
         type="number"
         placeholder="Monto"
         value={gasto.monto}
@@ -135,24 +156,26 @@ function GastoForm() {
       <label htmlFor="mensual" className="block text-sm font-bold mb-2">Mensual:</label>
       <input
         name="mensual"
+        id="mensual"
         type="checkbox"
         checked={gasto.mensual}
-        onChange={(e) => handleChange('mensual', e)}
+        onChange={(e) => handleChange('mensual', e.target.checked)} // Cambio aquí
         className="w-full p-2 rounded-md bg-zinc-600 mb-2"
       />
       <label htmlFor="diferido" className="block text-sm font-bold mb-2">Diferido:</label>
       <input
         name="diferido"
+        id="diferido"
         type="checkbox"
         checked={gasto.diferido}
-        onChange={(e) => handleChange('diferido', e)}
+        onChange={(e) => handleChange('diferido', e.target.checked)} // Cambio aquí
         className="w-full p-2 rounded-md bg-zinc-600 mb-2"
       />
       {gasto.diferido && ( // Renderizar el input de fecha diferida si gasto.diferido es verdadero
         <div>
           <label htmlFor="fecha_dif" className="block text-sm font-bold mb-2">Fecha diferida:</label>
           <input
-            type="date"
+            type="text"
             name='fecha_dif'
             className="w-full p-2 rounded-md bg-zinc-600 mb-2"
             onChange={(e) => handleChange('fecha_dif', e.target.value)}
@@ -174,4 +197,4 @@ function GastoForm() {
   );
 }
 
-export default GastoForm;
+export default EditBillForm;

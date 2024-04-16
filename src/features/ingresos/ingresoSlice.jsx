@@ -6,6 +6,9 @@ export const ingresoSlice = createSlice({
     ingreso_list: [], // Array vacío
     message: null, 
     detail_ingreso: [], 
+    total_ingresoxmes: [], 
+    current_ingreso: {},
+    ingreso_pendiente:{},
   },
   reducers: {
     setIngresoList: (state, action) => {
@@ -29,8 +32,17 @@ export const ingresoSlice = createSlice({
     clearMessage: (state) => {
       state.message = ''; // Limpia el mensaje del estado
     },
+    setIngresoxmes: (state, action) => {
+      state.total_ingresoxmes = action.payload; 
+    },
+    setCurrentIngreso: (state, action) => {
+      state.current_ingreso = action.payload; 
+    },
+    setIngresoPendiente: (state, action) => {
+      state.ingreso_pendiente = action.payload; 
+    },
   }
 });
 
-export const { setIngresoList, addIngreso, deleteIngreso, editIngreso, clearMessage, addDetailIngreso, setDetalleIngresoList } = ingresoSlice.actions;
+export const { setIngresoList, addIngreso, deleteIngreso, editIngreso, clearMessage, addDetailIngreso, setDetalleIngresoList, setIngresoxmes, setCurrentIngreso, setIngresoPendiente } = ingresoSlice.actions;
 export default ingresoSlice.reducer;

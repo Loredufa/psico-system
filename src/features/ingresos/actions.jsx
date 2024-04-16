@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { addDetailIngreso, addIngreso, deleteIngreso, editIngreso, setDetalleIngresoList, setIngresoList } from './ingresoSlice';
+import { addDetailIngreso, addIngreso, deleteIngreso, editIngreso, setCurrentIngreso, setDetalleIngresoList, setIngresoList, setIngresoPendiente, setIngresoxmes } from './ingresoSlice';
 const url_back = import.meta.env.VITE_BACKEND_URL;
 const token = import.meta.env.VITE_TOKEN;
 const content_type = import.meta.env.VITE_CONTENT_TYPE;
@@ -32,7 +32,7 @@ export function getDetailIncomes() {
     };
 }
 
-export const editIncome = ({ id, ingreso }) => {
+export const editIncome = (id, ingreso) => {
     return async (dispatch) => {
         try {
             // Realiza una solicitud HTTP para actualizar el usuario en el servidor
@@ -109,3 +109,42 @@ export const deleteIncome = (id) => {
         }
     };
 };
+
+export function getIncomesxMonth() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/income`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_ingresoxmes = response.data;
+        return dispatch(setIngresoxmes(total_ingresoxmes));
+    };
+}
+
+export function getCurrentIncome() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/currentincome`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_ingresomensual = response.data;
+        return dispatch(setCurrentIngreso(total_ingresomensual));
+    };
+}
+
+export function getPendingIncome() {
+    return async function (dispatch) {
+        let response = await axios.get(`${url_back}/balance/pendiente`, {
+            headers: {
+                "x-access-token": `${token}`,
+                "Content-Type": `${content_type}`
+            }, 
+        });
+        const total_pendiente = response.data;
+        return dispatch(setIngresoPendiente(total_pendiente));
+    };
+}

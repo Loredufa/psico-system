@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
-import { createDetailIncome, createIncome, editIncome } from '../features/ingresos/actions';
+import { createDetailIncome, createIncome } from '../features/ingresos/actions';
 
 function IngresoForm() {
     const [ingreso, setIngreso] = useState({
-        fecha: null,
+        fecha: Date(),
         descripcion: '',
         monto: '',
         mensual: false,
@@ -19,35 +19,13 @@ function IngresoForm() {
 
     const [suggestions, setSuggestions] = useState([]);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-
-    const { id } = useParams();
+    console.log ('CONFIRDIALOG',showConfirmDialog)
+   // const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const ingresos = useSelector(state => state.ingresos.ingreso_list);
+    //const ingresos = useSelector(state => state.ingresos.ingreso_list);
     const detalle = useSelector(state => state.ingresos.detail_ingreso);
     
-    useEffect(() => {
-        if (id && ingresos.length > 0) {
-            const ingresoEncontrado = ingresos.find(g => g.id === id);
-            if (ingresoEncontrado) {
-                const formattedDate = new Date(ingresoEncontrado.fecha).toLocaleDateString('en-CA');
-                setIngreso({
-                    ...ingresoEncontrado,
-                    fecha: formattedDate,
-                    mensual: Boolean(ingresoEncontrado.mensual), // Convertir a booleano
-                    cancelado: Boolean(ingresoEncontrado.cancelado),
-                    paciente: Boolean(ingresoEncontrado.paciente),
-                    cobrado: Boolean(ingresoEncontrado.cobrado),
-                    facturado: Boolean(ingresoEncontrado.facturado),
-                });
-            } else {
-                console.log("Ingreso no encontrado");
-            }
-        } else {
-            console.log("ID no encontrado o ingreso no cargados");
-        }
-    }, [id, ingresos]);
-
     const handleChange = (name, value) => {
         if (name === 'mensual' || name === 'cancelado' || name === 'paciente' || name === 'cobrado' || name === 'facturado') {
             // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
@@ -68,15 +46,11 @@ function IngresoForm() {
         const inputValue = value.trim().toLowerCase();
         const inputLength = inputValue.length;
 
-        // Verifica si detalle tiene un valor antes de llamar a filter()
-        if (detalle && detalle.length > 0) {
             return inputLength === 0 ? [] : detalle.filter(item =>
                 item.descripcion.toLowerCase().slice(0, inputLength) === inputValue
             );
-        } else {
-            return [];
         }
-    };
+
     const onSuggestionsFetchRequested = ({ value }) => {
         setSuggestions(getSuggestions(value));
     };
@@ -101,44 +75,31 @@ function IngresoForm() {
         if (!existeDescripcion) {
             setShowConfirmDialog(true); // Mostrar el diálogo solo si la descripción no existe
         } else {
-            // Si la descripción ya existe, determina si debes llamar a createIncome o editIncome
+            // Si la descripción ya existe
             const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-            const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
-            
-            if (id) {
-                dispatch(editIncome(income));
-            } else {
-                dispatch(createIncome(income));
-            }
-            
+            const income = { ...ingreso, id: uuid(), fecha };
+            console.log('SOY INCOME EN EL SUBMIT', income)
+            dispatch(createIncome(income));           
             navigate('/income'); // Mueve la navegación aquí
         }
-    };
+        };
+
     // Manejar la confirmación
     const handleConfirmAgendar = () => {
         dispatch(createDetailIncome(ingreso.descripcion));
         const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-        const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
-        
-        if (id) {
-            dispatch(editIncome(income));
-        } else {
-            dispatch(createIncome(income));
-        }
-        
+        const income = { ...ingreso, id: uuid(), fecha };
+        console.log('SOY INCOME EN EL HANDLERCONFIRM', income)
+        dispatch(createIncome(income));       
         setShowConfirmDialog(false); // Cerrar el diálogo
         navigate('/income'); // Mueve la navegación aquí
     };
 
     const handleCancelAgendar = () => {
         const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-        const income = id ? { id, ingreso: { ...ingreso, fecha } } : { ...ingreso, id: uuid(), fecha };
-        
-        if (id) {
-            dispatch(editIncome(income));
-        } else {
-            dispatch(createIncome(income));
-        }       
+        const income = { ...ingreso, id: uuid(), fecha };
+        console.log('SOY INCOME EN EL HANDLECANCEL', income)
+        dispatch(createIncome(income));    
         setShowConfirmDialog(false); // Cerrar el diálogo
         navigate('/income'); // Mueve la navegación aquí
     };

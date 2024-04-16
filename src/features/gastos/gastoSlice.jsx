@@ -6,6 +6,9 @@ export const gastoSlice = createSlice({
     gasto_list: [], 
     message: null, 
     detail_gasto: [], 
+    total_gastoxmes: [], 
+    current_gasto: {},
+    current_diferido: {},
   },
   reducers: {
     setGastoList: (state, action) => {
@@ -29,9 +32,27 @@ export const gastoSlice = createSlice({
     clearMessage: (state) => {
       state.message = ''; // Limpia el mensaje del estado
     },
+    setGastoxmes: (state, action) => {
+      state.total_gastoxmes = action.payload; 
+    },
+    setCurrentGasto: (state, action) => {
+      state.current_gasto = action.payload; 
+    },
+    setCurrentDiferido: (state, action) => {
+      state.current_diferido = action.payload; 
+    },
   }
 });
 
-export const { addGasto, deleteGasto, editGasto, setGastoList, clearMessage, setDetalleGastoList, addDetailGasto } = gastoSlice.actions;
+export const {  addGasto, 
+                deleteGasto, 
+                editGasto, 
+                setGastoList, 
+                clearMessage, 
+                setDetalleGastoList, 
+                addDetailGasto, 
+                setGastoxmes,
+                setCurrentGasto,
+                setCurrentDiferido } = gastoSlice.actions;
 
 export default gastoSlice.reducer;

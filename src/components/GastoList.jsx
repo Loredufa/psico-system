@@ -15,7 +15,11 @@ function GastoList() {
     dispatch(getDetailBills());
   }, [dispatch]);
 
-  const handlerDelete = (id) => {
+  const handlerDelete = (id, event) => {
+    // Acceder a la propiedad target del evento para obtener más información sobre el elemento que originó el evento
+    const { target } = event;
+    console.log(target);
+
     dispatch(deleteBills(id));
     // Actualizar la página después de 1 segundo para permitir que se complete la eliminación
     setTimeout(() => {
@@ -50,15 +54,16 @@ function GastoList() {
               <h5>{gasto.fecha}</h5>
               <h3>{gasto.descripcion}</h3>
               <p>${gasto.monto}</p>
-              {gasto.mensual? <p> es mensual</p> : <p>esporádico</p> }
+              {gasto.mensual ? <p> es mensual</p> : <p>esporádico</p>}
               {gasto.diferido === "true" ? <p>diferido</p> : <p>erogado</p>}
               <div className="flex gap-x-2">
                 <Link to={`/edit-bills/${gasto.id}`} className="bg-zinc-600 px-2 py-1 text-xs rounded-md">
                   Editar
                 </Link>
                 <button
-                  onClick={() => handlerDelete(gasto.id)}
-                  className="bg-red-500 px-2 py-1 test-xs rounded-md self-center">
+                  onClick={(event) => handlerDelete(gasto.id, event)}
+                  className="bg-red-500 px-2 py-1 test-xs rounded-md self-center"
+                >
                   Eliminar
                 </button>
               </div>
