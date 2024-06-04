@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
 import { createBill, createDetailBill } from '../features/gastos/actions';
 
 
@@ -72,7 +71,7 @@ function GastoForm() {
     } else {
       const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
       const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
+      const bill = { ...gasto, fecha, fecha_dif };
       dispatch(createBill(bill));
       navigate('/bill');
     }
@@ -82,7 +81,8 @@ function GastoForm() {
       dispatch(createDetailBill(gasto.descripcion));
       const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
       const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
+      const bill = { ...gasto, fecha, fecha_dif };
+      console.log('SOY BILL EM HANDLECONFIRMAR', bill);
       dispatch(createBill(bill));     
       setShowConfirmDialog(false); // Cerrar el diálogo
       navigate('/bill'); // Mueve la navegación aquí
@@ -91,7 +91,7 @@ function GastoForm() {
   const handleCancelAgendar = () => {
       const fecha = `${gasto.fecha.split('-')[2]}/${gasto.fecha.split('-')[1]}/${gasto.fecha.split('-')[0]}`;
       const fecha_dif = `${gasto.fecha_dif.split('-')[2]}/${gasto.fecha_dif.split('-')[1]}/${gasto.fecha_dif.split('-')[0]}`;
-      const bill = { ...gasto, id: uuid(), fecha, fecha_dif };
+      const bill = { ...gasto, fecha, fecha_dif };
       dispatch(createBill(bill));      
       setShowConfirmDialog(false); // Cerrar el diálogo
       navigate('/bill'); // Mueve la navegación aquí

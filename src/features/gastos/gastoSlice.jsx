@@ -9,6 +9,7 @@ export const gastoSlice = createSlice({
     total_gastoxmes: [], 
     current_gasto: {},
     current_diferido: {},
+    response_gpt: ""
   },
   reducers: {
     setGastoList: (state, action) => {
@@ -41,6 +42,9 @@ export const gastoSlice = createSlice({
     setCurrentDiferido: (state, action) => {
       state.current_diferido = action.payload; 
     },
+    setResponseGpt: (state, action) => {
+      state.response_gpt = action.payload; 
+    },
   }
 });
 
@@ -53,6 +57,7 @@ export const {  addGasto,
                 addDetailGasto, 
                 setGastoxmes,
                 setCurrentGasto,
-                setCurrentDiferido } = gastoSlice.actions;
+                setCurrentDiferido,
+                setResponseGpt } = gastoSlice.actions;
 
 export default gastoSlice.reducer;

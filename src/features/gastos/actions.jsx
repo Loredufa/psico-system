@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
     addDetailGasto, addGasto, deleteGasto, editGasto, setCurrentDiferido, setCurrentGasto,
-    setDetalleGastoList, setGastoList, setGastoxmes
+    setDetalleGastoList, setGastoList, setGastoxmes, setResponseGpt
 } from './gastoSlice';
 const url_back = import.meta.env.VITE_BACKEND_URL;
 const token = import.meta.env.VITE_TOKEN;
@@ -158,3 +158,24 @@ export function getCurrentDiferido() {
         return dispatch(setCurrentDiferido(total_diferido));
     };
 }
+
+export const addGpt = (recognizedText) => {
+    return async (dispatch) => {
+      try {
+        const response = await axios.post(
+          `${url_back}/model`,
+          { text: recognizedText },
+          {
+            headers: {
+              "x-access-token": token,
+              "Content-Type": content_type
+            }
+          }
+        );
+        dispatch(setResponseGpt(response.data));
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    };
+  };

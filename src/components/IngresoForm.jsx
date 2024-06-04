@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
 import { createDetailIncome, createIncome } from '../features/ingresos/actions';
 
 function IngresoForm() {
@@ -77,7 +76,7 @@ function IngresoForm() {
         } else {
             // Si la descripción ya existe
             const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-            const income = { ...ingreso, id: uuid(), fecha };
+            const income = { ...ingreso, fecha };
             console.log('SOY INCOME EN EL SUBMIT', income)
             dispatch(createIncome(income));           
             navigate('/income'); // Mueve la navegación aquí
@@ -88,7 +87,7 @@ function IngresoForm() {
     const handleConfirmAgendar = () => {
         dispatch(createDetailIncome(ingreso.descripcion));
         const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-        const income = { ...ingreso, id: uuid(), fecha };
+        const income = { ...ingreso, fecha };
         console.log('SOY INCOME EN EL HANDLERCONFIRM', income)
         dispatch(createIncome(income));       
         setShowConfirmDialog(false); // Cerrar el diálogo
@@ -97,7 +96,7 @@ function IngresoForm() {
 
     const handleCancelAgendar = () => {
         const fecha = `${ingreso.fecha.split('-')[2]}/${ingreso.fecha.split('-')[1]}/${ingreso.fecha.split('-')[0]}`;
-        const income = { ...ingreso, id: uuid(), fecha };
+        const income = { ...ingreso, fecha };
         console.log('SOY INCOME EN EL HANDLECANCEL', income)
         dispatch(createIncome(income));    
         setShowConfirmDialog(false); // Cerrar el diálogo

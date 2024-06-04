@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryLegend, VictoryStack, VictoryTheme } from 'victory';
 import { getCurrentBill, getCurrentDiferido } from '../features/gastos/actions';
 import { getCurrentIncome, getPendingIncome } from '../features/ingresos/actions';
+import Voz from "./Voz";
 
 function Home() {
   const current_gasto = useSelector((state) => state.gastos.current_gasto);
@@ -10,6 +11,7 @@ function Home() {
   const current_ingreso = useSelector((state) => state.ingresos.current_ingreso);
   const ingreso_pendiente = useSelector((state) => state.ingresos.ingreso_pendiente);
 
+  console.log(current_gasto)
   const gasto_erogado = current_gasto.total - current_diferido.total;
   const ingreso_recibido =  current_ingreso.total - ingreso_pendiente.total
 
@@ -35,6 +37,7 @@ function Home() {
 
   return (
     <div className="w-full flex justify-center">
+      <Voz/>
       <div className="w-1/3">
         <div>
           <h2>Seguimiento hormiga</h2>

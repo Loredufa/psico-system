@@ -44,5 +44,14 @@ export const ingresoSlice = createSlice({
   }
 });
 
-export const { setIngresoList, addIngreso, deleteIngreso, editIngreso, clearMessage, addDetailIngreso, setDetalleIngresoList, setIngresoxmes, setCurrentIngreso, setIngresoPendiente } = ingresoSlice.actions;
+export const { setIngresoList, 
+  addIngreso, 
+  deleteIngreso, 
+  editIngreso, 
+  clearMessage, 
+  addDetailIngreso, 
+  setDetalleIngresoList, 
+  setIngresoxmes, 
+  setCurrentIngreso, 
+  setIngresoPendiente } = ingresoSlice.actions;
 export default ingresoSlice.reducer;
