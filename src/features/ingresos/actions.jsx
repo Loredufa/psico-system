@@ -57,7 +57,7 @@ export const createIncome = (ingreso) => {
         const newIng = JSON.stringify(ingreso)
         try {
             // Realiza una solicitud HTTP para crear un nuevo usuario en el servidor
-            const response = await axios.post(`${url_back}/income`, newIng, {
+            const response = await axios.post(`${url_back}/income/income`, newIng, {
                 headers: {
                     "x-access-token": `${token}`,
                     "Content-Type": `${content_type}`

@@ -54,8 +54,8 @@ function GastoList() {
               <h5>{gasto.fecha}</h5>
               <h3>{gasto.descripcion}</h3>
               <p>${gasto.monto}</p>
-              {gasto.mensual ? <p> es mensual</p> : <p>esporádico</p>}
-              {gasto.diferido === "true" ? <p>diferido</p> : <p>erogado</p>}
+              {gasto.mensual === "true"? <p> es mensual</p> : <p></p>}
+              {gasto.diferido === "true" ? <p>diferido</p> : <p></p>}
               <div className="flex gap-x-2">
                 <Link to={`/edit-bills/${gasto.id}`} className="bg-zinc-600 px-2 py-1 text-xs rounded-md">
                   Editar

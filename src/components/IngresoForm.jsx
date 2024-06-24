@@ -10,9 +10,6 @@ function IngresoForm() {
         descripcion: '',
         monto: '',
         mensual: false,
-        paciente: false,
-        cobrado: false,
-        cancelado: false,
         facturado: false
     });
 
@@ -26,7 +23,7 @@ function IngresoForm() {
     const detalle = useSelector(state => state.ingresos.detail_ingreso);
     
     const handleChange = (name, value) => {
-        if (name === 'mensual' || name === 'cancelado' || name === 'paciente' || name === 'cobrado' || name === 'facturado') {
+        if (name === 'mensual' || name === 'facturado') {
             // Si es un checkbox, establece el valor como true si está marcado, de lo contrario, false
             setIngreso({
                 ...ingreso,
@@ -138,36 +135,12 @@ function IngresoForm() {
                 onChange={(e) => handleChange('monto', e.target.value)}
                 className="w-full p-2 rounded-md bg-zinc-600 mb-2"
             />
-            <label htmlFor="paciente" className="block text-sm font-bold mb-2">Es paciente?:</label>
-            <input
-                name="paciente"
-                type="checkbox"
-                checked={ingreso.paciente}
-                onChange={(e) => handleChange('paciente', e)} // Pasar el evento completo
-                className="w-full p-2 rounded-md bg-zinc-600 mb-2"
-            />
             <label htmlFor="mensual" className="block text-sm font-bold mb-2">Mensual:</label>
             <input
                 name="mensual"
                 type="checkbox"
                 checked={ingreso.mensual}
                 onChange={(e) => handleChange('mensual', e)} // Pasar el evento completo
-                className="w-full p-2 rounded-md bg-zinc-600 mb-2"
-            />
-            <label htmlFor="cobrado" className="block text-sm font-bold mb-2">Cobrado?:</label>
-            <input
-                name="cobrado"
-                type="checkbox"
-                checked={ingreso.cobrado}
-                onChange={(e) => handleChange('cobrado', e)}
-                className="w-full p-2 rounded-md bg-zinc-600 mb-2"
-            />
-            <label htmlFor="cancelado" className="block text-sm font-bold mb-2">Cancelado?:</label>
-            <input
-                name="cancelado"
-                type="checkbox"
-                checked={ingreso.cancelado}
-                onChange={(e) => handleChange('cancelado', e)}
                 className="w-full p-2 rounded-md bg-zinc-600 mb-2"
             />
             <label htmlFor="facturado" className="block text-sm font-bold mb-2">Facturado:</label>

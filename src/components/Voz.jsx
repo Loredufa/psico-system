@@ -4,15 +4,13 @@ import { addGpt } from '../features/gastos/actions';
 
 const Voz = () => {
   const [isRecognitionAvailable, setIsRecognitionAvailable] = useState(false);
-  const [recognizedText, setRecognizedText] = useState('');
+  const [finalTranscript, setFinalTranscript] = useState('');
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
   const dispatch = useDispatch();
 
   const response_gpt = useSelector((state) => state.gastos.response_gpt);
-
-  console.log('isRecognitionAvailable', isRecognitionAvailable);
-  console.log('recognizedText', recognizedText);
-  console.log('response_gpt', response_gpt);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
@@ -20,16 +18,21 @@ const Voz = () => {
       recognitionRef.current = new webkitSpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.lang = 'es-ES';
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.interimResults = true;
 
       recognitionRef.current.onresult = (event) => {
-        let transcript = '';
+        let interimTranscript = '';
+        let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            transcript += event.results[i][0].transcript + ' ';
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
           }
         }
-        setRecognizedText((prevText) => prevText + transcript);
+        setFinalTranscript((prevText) => prevText + finalTranscript);
+        setInterimTranscript(interimTranscript);
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -49,57 +52,62 @@ const Voz = () => {
   const startRecognition = () => {
     if (recognitionRef.current) {
       recognitionRef.current.start();
+      setIsListening(true);
     }
   };
 
   const stopRecognition = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+      setIsListening(false);
     }
   };
 
   const clearText = () => {
-    setRecognizedText('');
+    setFinalTranscript('');
+    setInterimTranscript('');
   };
 
   const submit = () => {
-    dispatch(addGpt(recognizedText));
+    dispatch(addGpt(finalTranscript));
   };
 
   return (
     <div>
       {isRecognitionAvailable ? (
         <>
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full mr-2"
-            onClick={startRecognition}
-          >
-            Start
-          </button>
-          <button
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full mr-2"
-            onClick={stopRecognition}
-          >
-            Stop
-          </button>
-          <button
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full"
-            onClick={clearText}
-          >
-            Clear
-          </button>
+          <div className="flex space-x-4 mb-2">
+            <button
+              className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full mr-2 flex items-center ${isListening ? 'animate-pulse' : ''}`}
+              onClick={startRecognition}
+            >
+              <img src="src/assets/micro.ico" alt="Microphone Icon" className="w-6 h-6 mr-2" />
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full mr-2"
+              onClick={stopRecognition}
+            >
+              <img src="src/assets/stop.ico" alt="Stop Icon" className="w-6 h-6 mr-2" />
+            </button>
+            <button
+              className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full"
+              onClick={clearText}
+            >
+              <img src="src/assets/clear.ico" alt="Clear Icon" className="w-6 h-6 mr-2" />
+            </button>
+          </div>
           <div className="w-full mt-2 p-2 border rounded">
-            <span>{recognizedText}</span>
+            <span>{finalTranscript} {interimTranscript}</span>
           </div>
           <div>
             <button
-              className="bg-blue-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full mt-2"
               onClick={submit}
             >
-              Save
+              <img src="src/assets/send.ico" alt="Send Icon" className="w-4 h-4 mr-2" />
             </button>
           </div>
-          <div className="w-full mt-2 p-2 border rounded bg-gray-100 text-gray-800">
+          <div className="w-full mt-2 p-2 border rounded bg-gray-100 text-gray-800 mb-8">
             <h3 className="font-bold">Response GPT:</h3>
             <span>{JSON.stringify(response_gpt, null, 2)}</span>
           </div>
@@ -112,5 +120,3 @@ const Voz = () => {
 };
 
 export default Voz;
-
-

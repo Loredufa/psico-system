@@ -64,7 +64,7 @@ export const createBill = (gasto) => {
 
         try {
             // Realiza una solicitud HTTP para crear un nuevo gasto en el servidor
-            const response = await axios.post(`${url_back}/bill`, gasto, {
+            const response = await axios.post(`${url_back}/bill/bill`, gasto, {
                 headers: {
                     "x-access-token": `${token}`,
                     "Content-Type": `${content_type}`

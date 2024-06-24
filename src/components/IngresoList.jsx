@@ -49,11 +49,8 @@ function IngresoList() {
             <header className="flex justify-between">
               <h5>{ingreso.fecha}</h5>
               <h3>{ingreso.descripcion}</h3>
-              {ingreso.paciente? <p> es paciente</p> : <p>otros ing</p> }
               <p>${ingreso.monto}</p>
-              {ingreso.cobrado? <p>ya cobrado</p> : <p> esta pendiente</p> }
-              {ingreso.facturado? <p>ya facturado</p> : <p>s/fact</p> }
-              {ingreso.mensual? <p>es mensual</p> : <p>es esporadico</p> }
+              {ingreso.mensual === "true"? <p>es mensual</p> : <p></p> }
               <div className="flex gap-x-2">
                 <Link to={`/edit-incomes/${ingreso.id}`} className="bg-zinc-600 px-2 py-1 text-xs rounded-md">
                   Editar
