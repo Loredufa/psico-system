@@ -70,6 +70,7 @@ const Voz = () => {
 
   const submit = () => {
     dispatch(addGpt(finalTranscript));
+    clearText();
   };
 
   return (
